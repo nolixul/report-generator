@@ -7,6 +7,17 @@ const app = express()
 
 app.use(bodyParser.json({limit: "10mb"}))
 
+app.get("/investments/report", (req, res) => {
+  request.get(`${config.investmentsServiceUrl}/investments`, (e, r, investments) => {
+    if (e) {
+      console.error(e)
+      res.send(500)
+    } else {
+      // res.send()
+    }
+  })
+})
+
 app.get("/investments/:id", (req, res) => {
   const {id} = req.params
   request.get(`${config.investmentsServiceUrl}/investments/${id}`, (e, r, investments) => {
