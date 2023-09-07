@@ -16,40 +16,52 @@ const separateHoldings = (investment) => {
   })
 }
 
-const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, inv => getHoldings(inv), inv => getValue(inv)]
+const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
 
 const getValue = (inv) => {
   return inv.investmentTotal * inv.holding.investmentPercentage
 }
 
-// const getHoldings = () => {return "placeholder"}
+const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
 
 const app = express()
 
 app.use(bodyParser.json({limit: "10mb"}))
 
-app.get("/investments/report", (req, res) => {
-  request.get(`${config.investmentsServiceUrl}/investments`, (e, r, investments) => {
+app.get("/investments/report", async (req, res) => {
+  await request.get(`${config.investmentsServiceUrl}/investments`, async (e, r, investments) => {
     if (e) {
       console.error(e)
       res.send(500)
     } else {
-      
-      const parsedInvestments = JSON.parse(investments)
+      await request.get(`${config.financialCompaniesServiceUrl}/companies`, (e, r, companies) => {
+        if (e) {
+          console.error(e)
+          res.send(500)
+        } else {
 
-      const csvRows = parsedInvestments.map(separateHoldings).flat().map(investment => fieldGetters.map(fieldGetter => fieldGetter(investment)))
+          const parsedCompanies = JSON.parse(companies)
+          const parsedInvestments = JSON.parse(investments)
 
-      csvRows.unshift(csvHeadings)
+          // map through each user, make a separate "row" for each holding they have, alter the fields
+          const csvRows = parsedInvestments.map(separateHoldings).flat().map(investment => fieldGetters.map(fieldGetter => fieldGetter(investment, parsedCompanies)))
 
-      const csvContent = csvRows.map(row => row.join(',') + '/n')
+          // add headings to the csv array
+          csvRows.unshift(csvHeadings)
 
-      const investmentsReport = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' })
+          // create csv content by formatting csvRows
+          const csvContent = csvRows.map(row => row.join(',') + '/n')
 
-      // content type should equal text/csv
-      // csv should be returned as text
+          // create binary large object with csvcontent, of type text/csv
+          const investmentsReport = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' })
 
-      // forward to exports
-      res.send(200)
+          // content type should equal text/csv
+          // csv should be returned as text
+
+          // forward to exports
+          res.sendStatus(200)
+        }
+      })
     }
   })
 })
