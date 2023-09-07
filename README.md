@@ -88,11 +88,17 @@ Admin - localhost:8083
 
 ## Nadia's section
 
-### Getting set up
+### New route
+
+Admin - localhost:8083
+
+- `/investments/report` get a report of all investment holdings and post it to `investments/export`
+
+### Notes on packages
 
 - Ran `npm i` in **admin**, 22 vulnerabilities - 10 high, 3 critical.
 
-  - Ran `npm audit` to see what the vulnerabilities are. **tough-cookie** has a prototype pollution vulnerability, there is no fix available. **request** has server-side request forgery in reques and depends on vulnerable versions of **tough-cookie**, there is no fix available.
+  - Ran `npm audit` to see what the vulnerabilities are. **tough-cookie** has a prototype pollution vulnerability, there is no fix available. **request** has server-side request forgery in request and depends on vulnerable versions of **tough-cookie**, there is no fix available.
   - Ran `npm audit fix` to auto fix vulnerabilities, got peer dependency issues.
   - Given more time, would fix peer dependency issues to resolve vulnerabilities and would remove or replace **tough-cookie** and **request**
 
@@ -110,17 +116,15 @@ Admin - localhost:8083
 
 _Alternatively I could have run `npm audit fix --force`, but I don't want to break this project when there's a limited amount of time to spend on it._
 
-- Ran `npm run develop` in each directory.
+### Local set up
 
-- Added an insomnia project with an environment for localhost and subenvironments for each port.
-
-- Tested get all endpoints were working as expected with insomnia.
+- Added an insomnia project with an environment for localhost and subenvironments for each port for manual testing.
 
 ### Tackling the challenge
 
 #### Breaking down the requirements
 
-_I've re-arranged the requirements bullet points into an order that make more sense to me, and moved the code standard specific requirements out into a different list._
+_I re-arranged the requirements bullet points into an order that make more sense to me, and moved the code standard specific requirements out into a different list._
 
 ##### Requirements
 
@@ -146,3 +150,39 @@ We prefer:
 - Functional code
 - Ramda.js (this is not a requirement but feel free to investigate)
 - Unit testing
+
+#### Process
+
+- Tested the provided routes were working with insomnia.
+- Broke down the task and started with the smallest item needed to make this work, as though I was doing TDD.
+- Wrote a get investments route to fetch all investments.
+- Wrote sudo code on what I wanted to do with the data I had, to get it into report form.
+- Got sidetracked by looking at Rambda.js - love it. Experimented with their sandbox environment and their documentation.
+- Decided to write in JavaScript due to time constraints.
+- Wrote a function for making a user entry for each holding.
+- Wrote a series of "fieldGetter" functions to alter the data for the report, left the getCompany one for last.
+- Had some issues getting a single company ID to return, after some experimentation, wrote a function similar to the one in the `/companies/:id` endpoint, and fetched all the companies once.
+- Researched csv files, how to generate them, etc. Found a suitable article and started to build my csv string.
+- Wrote a post route to export the csv report in a json object.
+- Returned the csv report out of the original get investments route.
+- Was manually testing this whole time using insomnia and console.logs.
+
+### The questions
+
+**How might you make this service more secure?**
+
+- Updating the packages with vulnerabilities.
+- Removing / replacing the deprecated packages (request).
+- I would question if we need to send investment reports between two microservices, and if we do, make sure they have very strict access policies.
+- Writing tests.
+
+**How would you make this solution scale to millions of records?**
+
+- Host it on a scalable cloud solution that can handle millions of requests.
+- Make the csv files multipart or chunked, chunk the requests.
+
+**What else would you have liked to improve given more time?**
+
+- Writing tests.
+- I would have liked to use Rambda.js. I enjoyed experimenting with it, and if I had a few more hours I'd refactor this code with it.
+- Sorting out the deprecated packages.

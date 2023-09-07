@@ -29,11 +29,15 @@ const app = express()
 app.use(bodyParser.json({limit: "10mb"}))
 
 app.get("/investments/report", async (req, res) => {
+
+  // get all investments
   await request.get(`${config.investmentsServiceUrl}/investments`, async (e, r, investments) => {
     if (e) {
       console.error(e)
       res.send(500)
     } else {
+      
+      // get company names associated with investment holdings
       await request.get(`${config.financialCompaniesServiceUrl}/companies`, (e, r, companies) => {
         if (e) {
           console.error(e)
