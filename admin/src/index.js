@@ -48,18 +48,27 @@ app.get("/investments/report", async (req, res) => {
 
           // add headings to the csv array
           csvRows.unshift(csvHeadings)
+          
 
-          // create csv content by formatting csvRows
-          const csvContent = csvRows.map(row => row.join(',') + '/n')
-
-          // create binary large object with csvcontent, of type text/csv
-          const investmentsReport = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' })
-
-          // content type should equal text/csv
-          // csv should be returned as text
+          // create csv content by formatting csvRows with commas and new lines
+          const csvContent = csvRows.map(row => row.join(',')).join('\n')
+          const csvJsonFormat = JSON.stringify({csv: csvContent})
 
           // forward to exports
-          res.sendStatus(200)
+          request.post({
+            uri: `${config.investmentsServiceUrl}/investments/export`,
+            headers: {
+              'content-type': 'application/json'
+            },
+            body: csvJsonFormat,
+          }, (e, r) => {
+            if (e) {
+              console.error(e)
+              res.send(500)
+            }
+          })
+          res.contentType("text/csv")
+          res.send(csvContent)
         }
       })
     }
