@@ -2,7 +2,6 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const config = require("config")
 const request = require("request")
-const R = require("ramda")
 
 const csvHeadings = [
   "User", "First Name", "Last Name", "Date", "Holding", "Value"
@@ -16,13 +15,13 @@ const separateHoldings = (investment) => {
   })
 }
 
-const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
-
 const getValue = (inv) => {
   return inv.investmentTotal * inv.holding.investmentPercentage
 }
 
 const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
+
+const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
 
 const app = express()
 
@@ -36,7 +35,7 @@ app.get("/investments/report", async (req, res) => {
       console.error(e)
       res.send(500)
     } else {
-      
+
       // get company names associated with investment holdings
       await request.get(`${config.financialCompaniesServiceUrl}/companies`, (e, r, companies) => {
         if (e) {
@@ -52,7 +51,6 @@ app.get("/investments/report", async (req, res) => {
 
           // add headings to the csv array
           csvRows.unshift(csvHeadings)
-          
 
           // create csv content by formatting csvRows with commas and new lines
           const csvContent = csvRows.map(row => row.join(',')).join('\n')
@@ -62,7 +60,7 @@ app.get("/investments/report", async (req, res) => {
           request.post({
             uri: `${config.investmentsServiceUrl}/investments/export`,
             headers: {
-              'content-type': 'application/json'
+              "content-type": "application/json",
             },
             body: csvJsonFormat,
           }, (e, r) => {
