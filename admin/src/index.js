@@ -66,7 +66,7 @@ app.get("/investments/report", async (req, res) => {
           }, (e, r) => {
             if (e) {
               console.error(e)
-              res.send(500)
+              res.sendStatus(500)
             }
           })
           res.contentType("text/csv")
@@ -82,7 +82,7 @@ app.get("/investments/:id", (req, res) => {
   request.get(`${config.investmentsServiceUrl}/investments/${id}`, (e, r, investments) => {
     if (e) {
       console.error(e)
-      res.send(500)
+      res.sendStatus(500)
     } else {
       res.send(investments)
     }
