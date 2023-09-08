@@ -184,5 +184,5 @@ We prefer:
 **What else would you have liked to improve given more time?**
 
 - Writing tests.
-- I would have liked to use Rambda.js. I enjoyed experimenting with it, and if I had a few more hours I'd refactor this code with it.
+- I would have liked to use Rambda.js. I enjoyed experimenting with it, and if I had a few more hours I'd refactor this code with it. There are some linting errors which would resolved it I used Rambda.js, and that would be the next thing I would address.
 - Sorting out the deprecated packages.
