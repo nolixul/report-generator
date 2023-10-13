@@ -22,7 +22,16 @@ const getValue = (inv) => {
 
 const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
 
-const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
+// const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
+
+const fieldGetters = [
+  R.prop("userId"),
+  R.prop("firstName"),
+  R.prop("lastName"),
+  R.prop("date"),
+  (inv, companies) => getCompany(inv, companies),
+  inv => getValue(inv),
+]
 
 const app = express()
 
@@ -59,7 +68,7 @@ app.get("/investments/report", async (req, res) => {
           csvRows.unshift(csvHeadings)
 
           // create csv content by formatting csvRows with commas and new lines
-          const csvContent = csvRows.map(row => row.join(',')).join('\n')
+          const csvContent = csvRows.map(row => row.join(",")).join("\n")
           const csvJsonFormat = JSON.stringify({csv: csvContent})
 
           // forward to exports
