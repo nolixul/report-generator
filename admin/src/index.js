@@ -2,9 +2,10 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const config = require("config")
 const request = require("request")
+const R = require("ramda")
 
 const csvHeadings = [
-  "User", "First Name", "Last Name", "Date", "Holding", "Value"
+  "User", "First Name", "Last Name", "Date", "Holding", "Value",
 ]
 
 const separateHoldings = (investment) => {
@@ -47,7 +48,12 @@ app.get("/investments/report", async (req, res) => {
           const parsedInvestments = JSON.parse(investments)
 
           // map through each user, make a separate "row" for each holding they have, alter the fields
-          const csvRows = parsedInvestments.map(separateHoldings).flat().map(investment => fieldGetters.map(fieldGetter => fieldGetter(investment, parsedCompanies)))
+          // const csvRows = parsedInvestments.map(separateHoldings).flat().map(investment => fieldGetters.map(fieldGetter => fieldGetter(investment, parsedCompanies)))
+
+          const csvRows = R.pipe(
+            R.chain(separateHoldings),
+            R.map(investment => R.map(fieldGetter => fieldGetter(investment, parsedCompanies), fieldGetters))
+          )(parsedInvestments);
 
           // add headings to the csv array
           csvRows.unshift(csvHeadings)
