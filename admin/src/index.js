@@ -16,9 +16,11 @@ const separateHoldings = (investment) => {
   })
 }
 
-const getValue = (inv) => {
-  return inv.investmentTotal * inv.holding.investmentPercentage
-}
+// const getValue = (inv) => {
+//   return inv.investmentTotal * inv.holding.investmentPercentage
+// }
+
+const getValue = inv => R.multiply(inv.investmentTotal, inv.holding.investmentPercentage)
 
 // const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
 
