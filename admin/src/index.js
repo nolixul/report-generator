@@ -8,13 +8,15 @@ const csvHeadings = [
   "User", "First Name", "Last Name", "Date", "Holding", "Value",
 ]
 
-const separateHoldings = (investment) => {
-  return investment.holdings.map((holding) => {
-    return {
-      ...investment, holding,
-    } 
-  })
-}
+// const separateHoldings = (investment) => {
+//   return investment.holdings.map((holding) => {
+//     return {
+//       ...investment, holding,
+//     }
+//   })
+// }
+
+const separateHoldings = investment => R.map(holding => R.mergeDeepRight(investment, { holding }), investment.holdings)
 
 // const getValue = (inv) => {
 //   return inv.investmentTotal * inv.holding.investmentPercentage
