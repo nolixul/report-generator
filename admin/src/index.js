@@ -11,7 +11,7 @@ const csvHeadings = [
 const separateHoldings = (investment) => {
   return investment.holdings.map((holding) => {
     return {
-      ...investment, holding
+      ...investment, holding,
     } 
   })
 }
@@ -20,7 +20,12 @@ const getValue = (inv) => {
   return inv.investmentTotal * inv.holding.investmentPercentage
 }
 
-const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
+// const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
+
+const getCompany = (inv, companies) => R.pipe(
+  R.find(R.propEq("id", inv.holding.id)),
+  R.prop("name"),
+)(companies)
 
 // const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
 
@@ -61,8 +66,8 @@ app.get("/investments/report", async (req, res) => {
 
           const csvRows = R.pipe(
             R.chain(separateHoldings),
-            R.map(investment => R.map(fieldGetter => fieldGetter(investment, parsedCompanies), fieldGetters))
-          )(parsedInvestments);
+            R.map(investment => R.map(fieldGetter => fieldGetter(investment, parsedCompanies), fieldGetters)),
+          )(parsedInvestments)
 
           // add headings to the csv array
           csvRows.unshift(csvHeadings)
