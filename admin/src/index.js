@@ -8,30 +8,14 @@ const csvHeadings = [
   "User", "First Name", "Last Name", "Date", "Holding", "Value",
 ]
 
-// const separateHoldings = (investment) => {
-//   return investment.holdings.map((holding) => {
-//     return {
-//       ...investment, holding,
-//     }
-//   })
-// }
-
-const separateHoldings = investment => R.map(holding => R.mergeDeepRight(investment, { holding }), investment.holdings)
-
-// const getValue = (inv) => {
-//   return inv.investmentTotal * inv.holding.investmentPercentage
-// }
+const separateHoldings = investment => R.map(holding => R.mergeDeepRight(investment, {holding}), investment.holdings)
 
 const getValue = inv => R.multiply(inv.investmentTotal, inv.holding.investmentPercentage)
-
-// const getCompany = (inv, companies) => companies.find(company => company.id === inv.holding.id).name
 
 const getCompany = (inv, companies) => R.pipe(
   R.find(R.propEq("id", inv.holding.id)),
   R.prop("name"),
 )(companies)
-
-// const fieldGetters = [inv => inv.userId, inv => inv.firstName, inv => inv.lastName, inv => inv.date, (inv, companies) => getCompany(inv, companies), inv => getValue(inv)]
 
 const fieldGetters = [
   R.prop("userId"),
@@ -49,14 +33,14 @@ app.use(bodyParser.json({limit: "10mb"}))
 app.get("/investments/report", async (req, res) => {
 
   // get all investments
-  await request.get(`${config.investmentsServiceUrl}/investments`, async (e, r, investments) => {
+  request.get(`${config.investmentsServiceUrl}/investments`, async (e, r, investments) => {
     if (e) {
       console.error(e)
       res.send(500)
     } else {
 
       // get company names associated with investment holdings
-      await request.get(`${config.financialCompaniesServiceUrl}/companies`, (e, r, companies) => {
+      request.get(`${config.financialCompaniesServiceUrl}/companies`, (e, r, companies) => {
         if (e) {
           console.error(e)
           res.send(500)
@@ -66,11 +50,11 @@ app.get("/investments/report", async (req, res) => {
           const parsedInvestments = JSON.parse(investments)
 
           // map through each user, make a separate "row" for each holding they have, alter the fields
-          // const csvRows = parsedInvestments.map(separateHoldings).flat().map(investment => fieldGetters.map(fieldGetter => fieldGetter(investment, parsedCompanies)))
+          const processInvestment = investment => R.map(fieldGetter => fieldGetter(investment, parsedCompanies), fieldGetters)
 
           const csvRows = R.pipe(
             R.chain(separateHoldings),
-            R.map(investment => R.map(fieldGetter => fieldGetter(investment, parsedCompanies), fieldGetters)),
+            R.map(processInvestment),
           )(parsedInvestments)
 
           // add headings to the csv array
@@ -87,7 +71,7 @@ app.get("/investments/report", async (req, res) => {
               "content-type": "application/json",
             },
             body: csvJsonFormat,
-          }, (e, r) => {
+          }, (e) => {
             if (e) {
               console.error(e)
               res.sendStatus(500)

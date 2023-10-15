@@ -99,20 +99,18 @@ Admin - localhost:8083
 - Ran `npm i` in **admin**, 22 vulnerabilities - 10 high, 3 critical.
 
   - Ran `npm audit` to see what the vulnerabilities are. **tough-cookie** has a prototype pollution vulnerability, there is no fix available. **request** has server-side request forgery in request and depends on vulnerable versions of **tough-cookie**, there is no fix available.
-  - Ran `npm audit fix` to auto fix vulnerabilities, got peer dependency issues.
-  - Given more time, would fix peer dependency issues to properly resolve vulnerabilities and would remove or replace **tough-cookie** and **request**
+  - Ran `npm audit fix` to auto fix vulnerabilities.
+  - Given more time, would remove or replace **tough-cookie** and **request**
 
 - Ran `npm i` in **financial-companies**, 18 vulnerabilities - 10 high, 1 critical.
 
   - Ran `npm audit` to see what the vulnerabilities are. All packages have fixes available via `npm audit fix`.
-  - Ran `npm audit fix` to auto fix vulnerabilities, got peer dependency issues.
-  - Given more time, would fix peer dependency issues properly to resolve vulnerabilities.
+  - Ran `npm audit fix` to auto fix vulnerabilities.
 
 - Ran `npm i` in **investments**, 21 vulnerabilities - 13 high, 1 critical.
 
   - Ran `npm audit` to see what the vulnerabilities are. All packages have fixes available via `npm audit fix`.
-  - Ran `npm audit fix` to auto fix vulnerabilities, got peer dependency issues.
-  - Given more time, would fix peer dependency issues properly to resolve vulnerabilities.
+  - Ran `npm audit fix` to auto fix vulnerabilities.
 
 _I ran `npm audit fix --force` as there's a limited amount of time to spend on this challenge._
 

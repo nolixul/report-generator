@@ -1,3 +1,6 @@
 {
-  "extends": "@mft/eslint-config-momentumft"
+  "extends": "@mft/eslint-config-momentumft",
+  "rules": {
+    "max-nested-callbacks": "off"
+  }
 }
